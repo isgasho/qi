@@ -82,6 +82,7 @@ func FetchQiitaData(accessToken string) ([]Data, error) {
 		}
 
 		b, err = ioutil.ReadAll(resp.Body)
+		resp.Body.Close()
 		if err != nil {
 			return nil, err
 		}
