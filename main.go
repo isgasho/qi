@@ -30,5 +30,5 @@ func main() {
 		},
 	}
 
-	app.Run(os.Args)
+	app.RunAndExitOnError()
 }
