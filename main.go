@@ -20,7 +20,10 @@ func main() {
 			Usage: "qiita + mine : you get yours articles",
 			Action: func(c *cli.Context) error {
 				qiitaToken := os.Getenv("QIITA_TOKEN")
-				data := cmd.FetchQiitaData(qiitaToken)
+				data, err := cmd.FetchQiitaData(qiitaToken)
+				if err != nil {
+					return err
+				}
 				cmd.OutputQiitaData(data)
 				return nil
 			},
