@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"net/url"
 )
 
 const baseUrl = "https://qiita.com/api/v2/items?query=user:yujiteshima"
@@ -32,6 +31,10 @@ func FetchQiitaData(accessToken string) ([]Data, error) {
 	// accessトークンは環境変数に入れておく。自分の場合は.bash_profileにexport文を書いている。
 
 	req, err := http.NewRequest(http.MethodGet, baseUrl, nil)
+	if err != nil {
+		return nil, err
+	}
+
 	req.Header.Set("content-type", "application/json")
 	if len(accessToken) > 0 {
 		fmt.Println("***** Access Token 無しでQiitaAPIを叩いています アクセス制限に注意して下さい*****")
@@ -60,27 +63,25 @@ func FetchQiitaData(accessToken string) ([]Data, error) {
 	/*********一覧取得では、ページビューがnilになるので個別で取りに行ってデータを得る*****************/
 	for i, val := range data {
 
-		article_id := val.ID
-		baseUrl := "https://qiita.com/api/v2/items/"
-		endpointURL2, err := url.Parse(baseUrl + article_id)
-		if err != nil {
-			return nil, err
-		}
+		itemsUrl := "https://qiita.com/api/v2/items/" + val.ID
 
 		b, err := json.Marshal(Data{})
 		if err != nil {
 			return nil, err
 		}
 
-		resp, err = http.DefaultClient.Do(&http.Request{
-			URL:    endpointURL2,
-			Method: "GET",
-			Header: http.Header{
-				"Content-Type":  {"application/json"},
-				"Authorization": {"Bearer " + accessToken},
-			},
-		})
+		req, err := http.NewRequest(http.MethodGet, itemsUrl, nil)
+		if err != nil {
+			return nil, err
+		}
 
+		req.Header.Set("content-type", "application/json")
+		if len(accessToken) > 0 {
+			fmt.Println("***** Access Token 無しでQiitaAPIを叩いています アクセス制限に注意して下さい*****")
+			req.Header.Set("Authorization", "Bearer "+accessToken)
+		}
+
+		resp, err = http.DefaultClient.Do(req)
 		if err != nil {
 			return nil, err
 		}
