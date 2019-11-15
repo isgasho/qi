@@ -7,18 +7,18 @@ import (
 	"net/http"
 )
 
-const baseUrl = "https://qiita.com/api/v2/items"
+const baseURL = "https://qiita.com/api/v2/items"
 
-// jsonをパースする為の構造体を定義する
-
+// Data は jsonをパースする為の構造体です
 type Data struct {
 	ID             string `json:"id"`
-	Url            string `json:"url"`
+	URL            string `json:"url"`
 	Title          string `json:"title"`
 	LikesCount     int    `json:"likes_count"`
 	PageViewsCount int    `json:"page_views_count"`
 }
 
+// FetchQiitaData は accessToken を使用して qiitaUser の記事一覧を取得します
 func FetchQiitaData(accessToken string, qiitaUser string) ([]Data, error) {
 	b, err := json.Marshal(Data{})
 	if err != nil {
@@ -29,7 +29,7 @@ func FetchQiitaData(accessToken string, qiitaUser string) ([]Data, error) {
 	// qiitaのアクセストークンがない場合はAuthorizationを付与しない
 	// 2パターン作っておく。
 	// accessトークンは環境変数に入れておく。自分の場合は.bash_profileにexport文を書いている。
-	req, err := http.NewRequest(http.MethodGet, baseUrl+"?query=user:"+qiitaUser, nil)
+	req, err := http.NewRequest(http.MethodGet, baseURL+"?query=user:"+qiitaUser, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -62,9 +62,9 @@ func FetchQiitaData(accessToken string, qiitaUser string) ([]Data, error) {
 	/*********一覧取得では、ページビューがnilになるので個別で取りに行ってデータを得る*****************/
 	for i, val := range data {
 
-		itemsUrl := "https://qiita.com/api/v2/items/" + val.ID
+		itemsURL := "https://qiita.com/api/v2/items/" + val.ID
 
-		req, err := http.NewRequest(http.MethodGet, itemsUrl, nil)
+		req, err := http.NewRequest(http.MethodGet, itemsURL, nil)
 		if err != nil {
 			return nil, err
 		}
@@ -101,7 +101,7 @@ func FetchQiitaData(accessToken string, qiitaUser string) ([]Data, error) {
 	return data, nil
 }
 
-// データの出力
+// OutputQiitaData は取得した記事データを表示します
 func OutputQiitaData(data []Data) {
 	fmt.Println("************************自分のQiita投稿一覧******************************")
 	for _, val := range data {
@@ -109,7 +109,7 @@ func OutputQiitaData(data []Data) {
 		fmt.Printf("%-15v%v%v\n", "Title", ": ", val.Title)
 		fmt.Printf("%-12v%v%v\n", "いいね", ": ", val.LikesCount)
 		fmt.Printf("%-9v%v%v\n", "ページビュー", ": ", val.PageViewsCount)
-		fmt.Printf("%-15v%v%v\n", "URL", ": ", val.Url)
+		fmt.Printf("%-15v%v%v\n", "URL", ": ", val.URL)
 		fmt.Println("-------------------------------------------------------------------------")
 	}
 }
